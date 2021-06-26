@@ -7,16 +7,16 @@ start() ->
 loop() ->
     receive
         {From, {square, L}} ->
-            From ! io:format("Square area is ~p~n", [area({square, L})]),
+            From ! {self(), io:format("Square area is ~p~n", [area({square, L})])},
             loop();
         {From, {rectangle, Height, Width}} ->
-            From ! io:format("Rectangle area is ~p~n", [area({rectangle, Height, Width})]),
+            From ! {self(), io:format("Rectangle area is ~p~n", [area({rectangle, Height, Width})])},
             loop();
         {From, {circle, Radio}} ->
-            From ! io:format("Circle area is ~p~n", [area({circle, Radio})]),
+            From ! {self(), io:format("Circle area is ~p~n", [area({circle, Radio})])},
             loop();
         {From, Generic} ->
-            From ! {error, Generic},
+            From ! {self(), {error, Generic}},
             loop()
     end.
 
@@ -32,6 +32,6 @@ area({circle, Radio}) ->
 
 client(Pid, Msg) ->
     Pid ! {self(), Msg},
-    receive Response ->
+    receive {Pid, Response} ->
         Response
     end.    
